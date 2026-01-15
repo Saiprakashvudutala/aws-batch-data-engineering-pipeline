@@ -1,44 +1,139 @@
-# AWS Batch Data Engineering Pipeline
+# AWS Batch Data Engineering Pipeline (End-to-End)
 
-## 📌 Project Overview
-This project demonstrates an end-to-end **batch data engineering pipeline on AWS**, built from scratch to understand how real-world data platforms are designed and implemented.
+## Project Overview
+This project demonstrates a real-world, end-to-end batch data engineering pipeline built on AWS.
 
-The pipeline ingests raw data into an Amazon S3 data lake, processes it using Apache Spark on EMR, generates analytics-ready metrics, and loads them into Amazon Redshift for visualization.
+The pipeline ingests raw CSV data into an Amazon S3 data lake, performs data cleaning and transformations using Python, orchestrates workflows using Apache Airflow running on EC2, enables analytics using Amazon Athena, and supports downstream visualization using BI tools such as Tableau.
 
----
-
-## 🏗️ Architecture Overview
-
-**Data Flow:**
-
-1. Raw CSV data is ingested into Amazon S3
-2. Data is stored in a structured data lake (`raw`, `clean`, `analytics`)
-3. Apache Spark on EMR processes and transforms the data
-4. Metrics are generated using DuckDB
-5. Final analytics data is loaded into Amazon Redshift
-6. Dashboards are created using Amazon QuickSight
-7. The entire pipeline is orchestrated using Apache Airflow running on EC2
+This project closely mirrors industry-grade data engineering practices, including layered data lakes, batch orchestration, schema optimization, and analytics-ready data modeling.
 
 ---
 
-## 🧰 Technologies Used
+## Architecture Overview
 
-- Amazon S3 (Data Lake)
-- Apache Airflow (EC2)
-- Amazon EMR (Apache Spark)
-- DuckDB
-- Amazon Redshift
-- Amazon QuickSight
-- GitHub (Version Control)
+### Data Flow
+
+Raw CSV (Amazon S3)  
+↓  
+Apache Airflow (EC2)  
+↓  
+Python ETL (pandas)  
+↓  
+S3 Clean Layer (Parquet)  
+↓  
+Amazon Athena (SQL Analytics)  
+↓  
+Visualization (Tableau)
 
 ---
 
-## 📂 Data Lake Structure
+## Data Lake Structure
 
-```text
-s3://de-batch-data-lake-prakash/
-├── raw/
-│   ├── csv/
-│   └── db/
-├── clean/
+s3://de-batch-data-lake-prakash/  
+│  
+├── raw/  
+│   └── csv/  
+│       └── OnlineRetail.csv  
+│  
+├── clean/  
+│   └── online_retail/  
+│       └── online_retail_clean.parquet  
+│  
 └── analytics/
+
+---
+
+## Technologies Used
+
+- Amazon S3 – Data lake storage (raw and clean layers)
+- Apache Airflow – Workflow orchestration (running on EC2)
+- Python (pandas) – Data cleaning and transformations
+- Amazon Athena – Serverless SQL analytics
+- AWS IAM – Secure role-based access control
+- Tableau – Data visualization and dashboards
+- GitHub – Version control and documentation
+
+---
+
+## Pipeline Workflow
+
+1. Raw retail CSV data is uploaded to Amazon S3 (raw layer)
+2. An Apache Airflow DAG orchestrates the batch workflow
+3. Python ETL script performs:
+   - Removal of invalid and null records
+   - Data type normalization
+   - Revenue calculation (quantity × unit_price)
+   - Date enrichment (year, month)
+4. Cleaned data is written back to S3 in Parquet format
+5. Amazon Athena is used to query analytics-ready data
+6. Aggregated insights are visualized using Tableau
+
+---
+
+## Sample Analytics Queries (Amazon Athena)
+
+### Total Revenue
+
+SELECT  
+  ROUND(SUM(total_price), 2) AS total_revenue  
+FROM online_retail_clean;
+
+---
+
+### Top 10 Countries by Revenue
+
+SELECT  
+  country,  
+  ROUND(SUM(total_price), 2) AS revenue  
+FROM online_retail_clean  
+GROUP BY country  
+ORDER BY revenue DESC  
+LIMIT 10;
+
+---
+
+### Monthly Revenue Trend
+
+SELECT  
+  year,  
+  month,  
+  ROUND(SUM(total_price), 2) AS monthly_revenue  
+FROM online_retail_clean  
+GROUP BY year, month  
+ORDER BY year, month;
+
+---
+
+## Key Insights Generated
+
+- Overall business revenue
+- Top revenue-generating countries
+- Monthly revenue trends
+- Optimized analytics using Parquet format
+
+---
+
+## What I Learned
+
+- Designing S3-based data lake architectures
+- Building and operating Apache Airflow on EC2
+- Writing production-style Python ETL pipelines
+- Managing secure AWS access using IAM roles
+- Query optimization using Parquet and Athena
+- Understanding batch processing cost considerations
+
+---
+
+## Future Enhancements
+
+- Partition Parquet data by year and month
+- Add data quality checks in Airflow
+- Automate scheduling and monitoring
+- Enable BI auto-refresh
+- Add alerting and logging
+
+---
+
+## Why This Project Matters
+
+This project reflects how modern batch data engineering pipelines are implemented in production, combining cloud storage, orchestration, transformation, analytics, and visualization into a scalable and maintainable system.
