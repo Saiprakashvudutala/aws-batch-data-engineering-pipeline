@@ -40,6 +40,7 @@ s3://de-batch-data-lake-prakash/
 │       └── online_retail_clean.parquet  
 │  
 └── analytics/
+│   └── final
 
 ---
 
